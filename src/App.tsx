@@ -1,12 +1,14 @@
 import { Outlet } from "react-router"
+import CommomLayout from "./components/layout/CommomLayout"
 
  
 function App() { 
 
   return (
     <> 
-    <h1>This is app components </h1>
-    <Outlet />
+     <CommomLayout>
+      <Outlet />
+     </CommomLayout>
     </>
   )
 }
