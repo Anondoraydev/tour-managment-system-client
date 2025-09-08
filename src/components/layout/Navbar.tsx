@@ -11,6 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ModeToggle } from "./ModeToggler";
 import { Link } from "react-router";
 
 // Navigation links array to be used in both desktop and mobile menus
@@ -31,7 +32,8 @@ export default function Navbar() {
               <Button
                 className="group size-8 md:hidden"
                 variant="ghost"
-                size="icon">
+                size="icon"
+              >
                 <svg
                   className="pointer-events-none"
                   width={16}
@@ -42,7 +44,8 @@ export default function Navbar() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  xmlns="http://www.w3.org/2000/svg">
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <path
                     d="M4 12L20 12"
                     className="origin-center -translate-y-[7px] transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-aria-expanded:translate-x-0 group-aria-expanded:translate-y-0 group-aria-expanded:rotate-[315deg]"
@@ -84,7 +87,8 @@ export default function Navbar() {
                   <NavigationMenuItem key={index}>
                     <NavigationMenuLink
                       asChild
-                      className="text-muted-foreground hover:text-primary py-1.5 font-medium">
+                      className="text-muted-foreground hover:text-primary py-1.5 font-medium"
+                    >
                       <Link to={link.href}>{link.label}</Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
@@ -95,7 +99,7 @@ export default function Navbar() {
         </div>
         {/* Right side */}
         <div className="flex items-center gap-2">
-          {/* <ModeToggle /> */}
+          <ModeToggle />
           <Button asChild className="text-sm">
             <Link to="/login">Login</Link>
           </Button>
