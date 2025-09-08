@@ -10,7 +10,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useLoginMutation } from "@/redux/features/auth/auth.api";
-import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
@@ -27,14 +26,17 @@ export function LoginForm({
     try {
       const res = await login(data).unwrap();
       console.log(res);
-    } catch (error) {
-      const err = error as FetchBaseQueryError;
+    } catch (err) {
       console.error(err);
 
-      if (err.status === 401) {
-        toast.error("Your account is not verified");
-        navigate("/verify", { state: data.email });
+      if (err.data.message === "Password does not match") {
+        toast.error("Invalid credentials");
       }
+
+      // if (err.status === 401) {
+      //   toast.error("Your account is not verified");
+      //   navigate("/verify", { state: data.email });
+      // }
     }
   };
 

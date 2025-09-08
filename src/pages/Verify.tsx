@@ -10,7 +10,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -21,10 +20,16 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import {
+  useSendOtpMutation,
+  useVerifyOtpMutation,
+} from "@/redux/features/auth/auth.api";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Dot } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
+import { toast } from "sonner";
 import z from "zod";
 
 const FormSchema = z.object({
@@ -37,6 +42,9 @@ export default function Verify() {
   const location = useLocation();
   const navigate = useNavigate();
   const [email] = useState(location.state);
+  const [confirmed, setConfirmed] = useState(false);
+  const [sendOtp] = useSendOtpMutation();
+  const [verifyOtp] = useVerifyOtpMutation();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -45,12 +53,44 @@ export default function Verify() {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof FormSchema>) => {
-    console.log(data);
-    // navigate("/reset-password", { state: email });
+  const handelConfirm = async () => {
+    const toastId = toast.loading("Sending OTP...");
+    try {
+      const res = await sendOtp({ email }).unwrap();
+
+      if (res.success) {
+        toast.success("OTP sent successfully", { id: toastId });
+        setConfirmed(true);
+      }
+
+      sendOtp({ email: email });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  //! need to fix this later
+  const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+    const toastId = toast.loading("Verifying OTP...");
+    const userInfo = {
+      email: email,
+      otp: data.pin,
+    };
+
+    try {
+      const res = await verifyOtp(userInfo).unwrap();
+
+      if (res.success) {
+        toast.success("OTP verified successfully", { id: toastId });
+        navigate("/", { state: email });
+      } else {
+        toast.error(res.message);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // ! need to fix this later
   // useEffect(() => {
   //   if (!email) {
   //     navigate("/");
@@ -59,59 +99,91 @@ export default function Verify() {
 
   return (
     <div className="grid place-content-center h-screen ">
-      <Card className="shadow-2xl rounded-2xl border border-gray-200 w-full max-w-md p-6">
-        <CardHeader className="mb-4">
-          <CardTitle className="text-2xl font-bold">
-            Verify your email address
-          </CardTitle>
-          <CardDescription className="text-gray-600 mt-1">
-            Please enter the 6-digit code we sent to <br />
-            {email}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form
-              id="otp-form"
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-6">
-              <FormField
-                control={form.control}
-                name="pin"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>One-Time Password</FormLabel>
-                    <FormControl>
-                      <InputOTP maxLength={6} {...field}>
-                        <InputOTPGroup>
-                          <InputOTPSlot index={0} />
-                          <InputOTPSlot index={1} />
-                          <InputOTPSlot index={2} />
-                          <InputOTPSlot index={3} />
-                          <InputOTPSlot index={4} />
-                          <InputOTPSlot index={5} />
-                        </InputOTPGroup>
-                      </InputOTP>
-                    </FormControl>
-                    <FormDescription>
-                      Please enter the one-time password sent to your phone.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex justify-end">
-          <Button
-            form="otp-form"
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white">
-            Submit
-          </Button>
-        </CardFooter>
-      </Card>
+      {confirmed ? (
+        <Card className="shadow-2xl rounded-2xl border border-gray-200 w-full max-w-md p-6">
+          <CardHeader className="mb-4">
+            <CardTitle className="text-2xl font-bold">
+              Verify your email address
+            </CardTitle>
+            <CardDescription className="text-gray-600 mt-1">
+              Please enter the 6-digit code we sent to <br />
+              {email}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form
+                id="otp-form"
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="pin"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>One-Time Password</FormLabel>
+                      <FormControl>
+                        <InputOTP maxLength={6} {...field}>
+                          <InputOTPGroup>
+                            <InputOTPSlot index={0} />
+                          </InputOTPGroup>
+                          <InputOTPGroup>
+                            <InputOTPSlot index={1} />
+                          </InputOTPGroup>
+                          <InputOTPGroup>
+                            <InputOTPSlot index={2} />
+                          </InputOTPGroup>
+                          <Dot />
+                          <InputOTPGroup>
+                            <InputOTPSlot index={3} />
+                          </InputOTPGroup>
+                          <InputOTPGroup>
+                            <InputOTPSlot index={4} />
+                          </InputOTPGroup>
+                          <InputOTPGroup>
+                            <InputOTPSlot index={5} />
+                          </InputOTPGroup>
+                        </InputOTP>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
+          </CardContent>
+          <CardFooter className="flex justify-end">
+            <Button
+              form="otp-form"
+              type="submit"
+              className=" hover:bg-blue-700 text-white">
+              Submit
+            </Button>
+          </CardFooter>
+        </Card>
+      ) : (
+        <Card className="shadow-2xl rounded-2xl border border-gray-200 w-full max-w-md p-6">
+          <CardHeader className="mb-4">
+            <CardTitle className="text-2xl font-bold">
+              Verify your email address
+            </CardTitle>
+            <CardDescription className="text-gray-600 mt-1">
+              We will send you an OTP at <br />
+              {email}
+            </CardDescription>
+          </CardHeader>
+
+          <CardFooter className="flex justify-end">
+            <Button
+              onClick={handelConfirm}
+              form="otp-form"
+              type="submit"
+              className=" w-[300px] text-white">
+              Submit
+            </Button>
+          </CardFooter>
+        </Card>
+      )}
     </div>
   );
 }
