@@ -23,8 +23,8 @@ export function LoginForm({
   const form = useForm({
     //! For development only
     defaultValues: {
-      email: "anondo554@gmail.com",
-      password: "Anondo554@",
+      email: "mirhussainmurtaza@gmail.com",
+      password: "12345678",
     },
   });
   const [login] = useLoginMutation();
