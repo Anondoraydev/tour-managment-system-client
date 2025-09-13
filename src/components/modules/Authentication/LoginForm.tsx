@@ -58,7 +58,6 @@ export function LoginForm({
           Enter your email below to login to your account
         </p>
       </div>
-
       <div className="grid gap-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
