@@ -28,7 +28,7 @@ export function LoginForm({
     },
   });
   const [login] = useLoginMutation();
-  const onSubmit: SubmitHandler<FieldValues> = async data => {
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     try {
       const res = await login(data).unwrap();
 
@@ -115,7 +115,8 @@ export function LoginForm({
           onClick={() => window.open(`${config.baseUrl}/auth/google`)}
           type="button"
           variant="outline"
-          className="w-full cursor-pointer">
+          className="w-full cursor-pointer"
+        >
           Login with Google
         </Button>
       </div>
